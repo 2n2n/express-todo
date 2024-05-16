@@ -1,4 +1,6 @@
 const express = require("express");
+const router = express.Router();
+
 var bodyParser = require("body-parser");
 const { v4: uuidv4 } = require("uuid");
 const app = express();
@@ -8,21 +10,21 @@ app.use(bodyParser.json());
 
 let todoList = [];
 
-app.get("/todo/:id", (req, res) => {
+router.get("/todo/:id", (req, res) => {
   const uuid = req.params.id;
   res.json({
     result: todoList.find((task) => task.id === uuid) || null,
   });
 });
 
-app.get("/todo", (req, res) => {
+router.get("/todo", (req, res) => {
   res.json({
     count: todoList.length,
     results: todoList,
   });
 });
 
-app.post("/todo", (req, res) => {
+router.post("/todo", (req, res) => {
   const { task: myTask } = req.body;
   const task = { id: uuidv4(), task: myTask, status: "pending" };
   todoList.push(task);
@@ -31,7 +33,7 @@ app.post("/todo", (req, res) => {
   });
 });
 
-app.patch("/todo/:id", (req, res) => {
+router.patch("/todo/:id", (req, res) => {
   const uuid = req.params.id;
   const { status } = req.body;
   todoList = todoList.map((task) => {
@@ -45,7 +47,7 @@ app.patch("/todo/:id", (req, res) => {
   });
 });
 
-app.delete("/todo/:id", (req, res) => {
+router.delete("/todo/:id", (req, res) => {
   const uuid = req.params.id;
   const foundTask = todoList.find((task) => task.id === uuid) || null;
   todoList = todoList.filter((task) => task.id !== uuid);
@@ -53,6 +55,8 @@ app.delete("/todo/:id", (req, res) => {
     result: foundTask,
   });
 });
+
+app.use("/api", router);
 
 app.listen(port, () => {
   console.log(`App is now listenting to ${port}`);
